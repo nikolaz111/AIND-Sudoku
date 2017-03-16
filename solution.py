@@ -12,19 +12,6 @@ def assign_value(values, box, value):
     return values
 
 
-def naked_twins(values):
-    """Eliminate values using the naked twins strategy.
-    Args:
-        values(dict): a dictionary of the form {'box_name': '123456789', ...}
-
-    Returns:
-        the values dictionary with the naked twins eliminated from peers.
-    """
-
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
-
-
 def cross(A, B):
     return [s + t for s in A for t in B]
 
@@ -38,9 +25,37 @@ row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI') for cs in ('123', '456', '789')]
 diagonal_units = [[rows[i] + cols[i] for i in range(0, 9)], [rows[i] + cols[8 - i] for i in range(0, 9)]]
-unitlist = row_units + column_units + square_units + diagonal_units
+unitlist = row_units + column_units + square_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s], [])) - set([s])) for s in boxes)
+
+
+def naked_twins(values):
+    """Eliminate values using the naked twins strategy.
+    Args:
+        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+
+    Returns:
+        the values dictionary with the naked twins eliminated from peers.
+    """
+
+    # Find all instances of naked twins
+    # Eliminate the naked twins as possibilities for their peers
+    for u in unitlist:
+        pairs = [(a, values[a]) for a in u if len(values[a]) == 2]
+
+        if len(pairs) > 0:
+            pass
+
+        twins = [a[1] for a in pairs for b in pairs if a[0] != b[0] and ''.join(sorted(a[1])) == ''.join(sorted(b[1]))]
+        r
+        for t in twins:
+            for box in u:
+                for d in values[box]:
+                    if d == t:
+                        assign_value(values, box, values[box].replace(d, ''))
+
+    return values
 
 
 def grid_values(grid):
@@ -107,6 +122,8 @@ def reduce_puzzle(values):
         values = eliminate(values)
         # Use the Only Choice Strategy
         values = only_choice(values)
+        # Use the Naked Twins Strategy
+        values = naked_twins(values)
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
         # If no new values were added, stop the loop.
@@ -118,23 +135,22 @@ def reduce_puzzle(values):
 
 
 def search(values):
-    def search(values):
-        "Using depth-first search and propagation, try all possible values."
-        # First, reduce the puzzle using the previous function
-        values = reduce_puzzle(values)
-        if values is False:
-            return False  ## Failed earlier
-        if all(len(values[s]) == 1 for s in boxes):
-            return values  ## Solved!
-        # Choose one of the unfilled squares with the fewest possibilities
-        n, s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
-        # Now use recurrence to solve each one of the resulting sudokus, and
-        for value in values[s]:
-            new_sudoku = values.copy()
-            assign_value(values, s, value)
-            attempt = search(new_sudoku)
-            if attempt:
-                return attempt
+    "Using depth-first search and propagation, try all possible values."
+    # First, reduce the puzzle using the previous function
+    values = reduce_puzzle(values)
+    if values is False:
+        return False  ## Failed earlier
+    if all(len(values[s]) == 1 for s in boxes):
+        return values  ## Solved!
+    # Choose one of the unfilled squares with the fewest possibilities
+    n, s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
+    # Now use recurrence to solve each one of the resulting sudokus, and
+    for value in values[s]:
+        new_sudoku = values.copy()
+        assign_value(new_sudoku, s, value)
+        attempt = search(new_sudoku)
+        if attempt:
+            return attempt
 
 
 def solve(grid):
@@ -151,7 +167,8 @@ def solve(grid):
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    display(solve(diag_sudoku_grid))
+    solved = solve(diag_sudoku_grid)
+    display(solved)
 
     try:
         from visualize import visualize_assignments
