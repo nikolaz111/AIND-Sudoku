@@ -48,7 +48,7 @@ def naked_twins(values):
             pass
 
         twins = [a[1] for a in pairs for b in pairs if a[0] != b[0] and ''.join(sorted(a[1])) == ''.join(sorted(b[1]))]
-        r
+
         for t in twins:
             for box in u:
                 for d in values[box]:
