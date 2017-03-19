@@ -4,7 +4,9 @@
 # Question 1 (Naked Twins)
 Q: How do we use constraint propagation to solve the naked twins problem?  
 A: By creating another function which checks for twin pairs inside each unit. Now we will eliminate 
-more numbers if twins in the same unit exists
+more numbers if twins in the same unit exists. This is done firstly by identifying boxes with 2 
+numbers and then checking if there is another box with the same numbers within the same unit. 
+This technique will also be applied for the diagonal sudoku additional constraint.
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
