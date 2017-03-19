@@ -25,7 +25,7 @@ row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI') for cs in ('123', '456', '789')]
 diagonal_units = [[rows[i] + cols[i] for i in range(0, 9)], [rows[i] + cols[8 - i] for i in range(0, 9)]]
-unitlist = row_units + column_units + square_units
+unitlist = row_units + column_units + square_units + diagonal_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s], [])) - set([s])) for s in boxes)
 
@@ -44,16 +44,15 @@ def naked_twins(values):
     for u in unitlist:
         pairs = [(a, values[a]) for a in u if len(values[a]) == 2]
 
-        if len(pairs) > 0:
-            pass
-
-        twins = [a[1] for a in pairs for b in pairs if a[0] != b[0] and ''.join(sorted(a[1])) == ''.join(sorted(b[1]))]
+        twins = [(a[0],a[1]) for a in pairs for b in pairs if a[0] != b[0] and ''.join(sorted(a[1])) == ''.join(sorted(b[1]))]
+        twins_boxes = [b[0] for b in twins]
 
         for t in twins:
             for box in u:
-                for d in values[box]:
-                    if d == t:
-                        assign_value(values, box, values[box].replace(d, ''))
+                if box not in twins_boxes:
+                    for d in values[box]:
+                        if d in t[1]:
+                            assign_value(values, box, values[box].replace(d, ''))
 
     return values
 
